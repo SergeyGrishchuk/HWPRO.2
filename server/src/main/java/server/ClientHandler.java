@@ -88,12 +88,29 @@ public class ClientHandler {
                                 }
                                 server.privateMsg(this, token[1], token[2]);
                             }
+
+                            if(str.startsWith("/chnick")) {
+                                String[] token = str.split(" ", 2);
+                                if (token.length < 2) {
+                                    continue;
+                                }
+                                if (token[1].contains(" ")) {
+                                    sendMsg("Не допускается содержание пробелов в нике");
+                                    continue;
+                                }
+                                if (server.getAuthService().changeNickname(this.nickname, token[1])) {
+                                    sendMsg("/yournick " + token[1]);
+                                    sendMsg("Ваш ник изменен. Новый ник " + token[1]);
+                                    this.nickname = token[1];
+                                    server.broadcastClientList();
+                                } else {
+                                    sendMsg("Не удалось изменить ник. Ник " + token[1] + " занят");
+                                }
+                            }
                         } else {
                             server.broadcastMsg(this, str);
                         }
                     }
-
-                    //SocketTimeoutException
                 } catch (SocketTimeoutException e) {
                     sendMsg("/end");
                     System.out.println("Клиент отключен по таймауту");
