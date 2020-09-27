@@ -18,7 +18,11 @@ public class Server {
 
     public Server() {
         clients = new Vector<>();
-        authService = new SimpleAuthService();
+        if(!BaseHandler.connect()){
+            throw new RuntimeException("Не удалось установить соединение с БД");
+        }
+        //authService = new SimpleAuthService();
+        authService = new DateBaseAuthService();
 
         try {
             server = new ServerSocket(PORT);
@@ -34,6 +38,7 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            BaseHandler.disconnect();
             try {
                 server.close();
             } catch (IOException e) {
@@ -91,7 +96,7 @@ public class Server {
         return false;
     }
 
-    private void broadcastClientList() {
+    public void broadcastClientList() {
         StringBuilder sb = new StringBuilder("/clientlist ");
         for (ClientHandler c : clients) {
             sb.append(c.getNickname()).append(" ");
